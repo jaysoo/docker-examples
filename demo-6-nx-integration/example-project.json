@@ -1,0 +1,43 @@
+{
+  "name": "my-app",
+  "root": "apps/my-app",
+  "sourceRoot": "apps/my-app/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/node:build",
+      "options": {
+        "outputPath": "dist/apps/my-app",
+        "main": "apps/my-app/src/main.ts"
+      }
+    },
+    "docker-build": {
+      "executor": "./tools/executors/docker-build:build",
+      "dependsOn": ["build"],
+      "options": {
+        "dockerfile": "Dockerfile",
+        "context": ".",
+        "imageName": "my-app:latest",
+        "buildArgs": {
+          "NODE_VERSION": "18"
+        }
+      },
+      "configurations": {
+        "production": {
+          "target": "production",
+          "push": true,
+          "registry": "registry.example.com"
+        }
+      },
+      "cache": true
+    },
+    "docker-push": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["docker-build"],
+      "options": {
+        "command": "docker push {args.tag}"
+      }
+    }
+  },
+  "tags": ["docker", "node"]
+}

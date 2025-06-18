@@ -1,0 +1,35 @@
+# syntax=docker/dockerfile:1.4
+# BuildKit-optimized Dockerfile
+
+FROM node:18-alpine AS base
+WORKDIR /app
+
+# Dependencies layer with cache mount
+FROM base AS deps
+COPY package*.json ./
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --only=production
+
+# Dev dependencies for build
+FROM base AS dev-deps
+COPY package*.json ./
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci
+
+# Build stage with source
+FROM dev-deps AS build
+COPY . .
+RUN --mount=type=cache,target=/app/.build-cache \
+    npm run build || echo "No build script"
+
+# Production image
+FROM base AS production
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/src ./src
+
+# Use BuildKit's cache export
+ARG BUILDKIT_INLINE_CACHE=1
+
+EXPOSE 3000
+CMD ["node", "src/server.js"]

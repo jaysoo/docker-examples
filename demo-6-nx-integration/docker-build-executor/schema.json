@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "cli": "nx",
+  "title": "Docker Build",
+  "description": "Build Docker images with Nx caching support",
+  "type": "object",
+  "properties": {
+    "dockerfile": {
+      "type": "string",
+      "description": "Path to Dockerfile",
+      "default": "Dockerfile"
+    },
+    "context": {
+      "type": "string",
+      "description": "Docker build context path",
+      "default": "."
+    },
+    "imageName": {
+      "type": "string",
+      "description": "Name for the built image"
+    },
+    "tags": {
+      "type": "array",
+      "description": "Additional tags for the image",
+      "items": {
+        "type": "string"
+      }
+    },
+    "buildArgs": {
+      "type": "object",
+      "description": "Build arguments to pass to Docker",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "target": {
+      "type": "string",
+      "description": "Target stage in multi-stage Dockerfile"
+    },
+    "platform": {
+      "type": "string",
+      "description": "Platform to build for (e.g., linux/amd64)"
+    },
+    "push": {
+      "type": "boolean",
+      "description": "Push image after building",
+      "default": false
+    },
+    "registry": {
+      "type": "string",
+      "description": "Registry URL for pushing"
+    },
+    "cache": {
+      "type": "boolean",
+      "description": "Enable Nx caching",
+      "default": true
+    },
+    "cacheFrom": {
+      "type": "array",
+      "description": "Images to use for cache",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": ["dockerfile", "context"]
+}
